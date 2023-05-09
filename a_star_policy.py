@@ -3,6 +3,7 @@ from pogema import pogema_v0, Hard8x8, GridConfig
 from pogema.animation import AnimationMonitor, AnimationConfig
 from IPython.display import SVG, display
 from heapq import heappop, heappush
+import matplotlib.pyplot as plt
 
 INF = 1e7
 
@@ -146,18 +147,18 @@ def get_actions(agents, obs):
         #   def act(self, obs):
         #       xy, target_xy, obstacles, agents = obs['xy'], obs['target_xy'], obs['obstacles'], obs['agents']
         agent_obs = {
-            'xy': None,
-            'target_xy': None,
-            'obstacles': None,
-            'agents': None,
+            'xy': (5, 5),
+            'target_xy': (np.where(i_obs[2] == 1)[0][0], np.where(i_obs[2] == 1)[1][0]),
+            'obstacles': i_obs[0],
+            'agents': i_obs[1],
         }
-        action = agents[i_obs_index].act(i_obs)
+        action = agents[i_obs_index].act(agent_obs)
         actions.append(action)
     return actions
 
 
 def main():
-    num_agents = 4
+    num_agents = 2
     # Define random configuration
     grid_config = GridConfig(
         num_agents=num_agents,  # number of agents
@@ -190,7 +191,11 @@ def main():
             break
 
     env.save_animation("render.svg")
+    env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
+    # env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0, static=True))
     display(SVG('render.svg'))
+    plt.imshow(SVG('render.svg'))
+    plt.show()
 
 
 if __name__ == '__main__':
