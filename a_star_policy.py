@@ -1,6 +1,7 @@
 import numpy as np
-from pogema import GridConfig
-from pogema import pogema_v0, Hard8x8
+from pogema import pogema_v0, Hard8x8, GridConfig
+from pogema.animation import AnimationMonitor, AnimationConfig
+from IPython.display import SVG, display
 from heapq import heappop, heappush
 
 INF = 1e7
@@ -138,27 +139,58 @@ class BatchAStarAgent:
         self.astar_agents = {}
 
 
+def get_actions(agents, obs):
+    actions = []
+    for i_obs_index, i_obs in enumerate(obs):
+        # inside the agent:
+        #   def act(self, obs):
+        #       xy, target_xy, obstacles, agents = obs['xy'], obs['target_xy'], obs['obstacles'], obs['agents']
+        agent_obs = {
+            'xy': None,
+            'target_xy': None,
+            'obstacles': None,
+            'agents': None,
+        }
+        action = agents[i_obs_index].act(i_obs)
+        actions.append(action)
+    return actions
+
+
 def main():
+    num_agents = 4
     # Define random configuration
-    grid_config = GridConfig(num_agents=4,  # number of agents
-                             size=8,  # size of the grid
-                             density=0.2,  # obstacle density
-                             seed=1,  # set to None for random
-                             # obstacles, agents and targets
-                             # positions at each reset
-                             max_episode_steps=128,  # horizon
-                             obs_radius=5,  # defines field of view
-                             )
+    grid_config = GridConfig(
+        num_agents=num_agents,  # number of agents
+        size=8,  # size of the grid
+        density=0.2,  # obstacle density
+        seed=1,  # set to None for random
+        # obstacles, agents and targets
+        # positions at each reset
+        max_episode_steps=128,  # horizon
+        obs_radius=5,  # defines field of view
+    )
     # env = pogema_v0(grid_config=Hard8x8())
     env = pogema_v0(grid_config=grid_config)
-    obs = env.reset()  # here
+    env = AnimationMonitor(env)
+
+    # create agents
+    agents = []
+    for i in range(num_agents):
+        agent = AStarAgent()
+        agents.append(agent)
+
+    obs = env.reset()
 
     while True:
         # Using random policy to make actions
-        obs, reward, terminated, info = env.step(env.sample_actions())  # and here
-        env.render()
+        actions = get_actions(agents, obs)
+        obs, reward, terminated, info = env.step(actions)
+        # env.render()
         if all(terminated):
             break
+
+    env.save_animation("render.svg")
+    display(SVG('render.svg'))
 
 
 if __name__ == '__main__':
