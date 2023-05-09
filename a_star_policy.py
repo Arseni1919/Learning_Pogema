@@ -143,32 +143,33 @@ class BatchAStarAgent:
 def get_actions(agents, obs):
     actions = []
     for i_obs_index, i_obs in enumerate(obs):
-        # inside the agent:
-        #   def act(self, obs):
-        #       xy, target_xy, obstacles, agents = obs['xy'], obs['target_xy'], obs['obstacles'], obs['agents']
-        agent_obs = {
-            'xy': (5, 5),
-            'target_xy': (np.where(i_obs[2] == 1)[0][0], np.where(i_obs[2] == 1)[1][0]),
-            'obstacles': i_obs[0],
-            'agents': i_obs[1],
-        }
-        action = agents[i_obs_index].act(agent_obs)
+        # agent_obs = {
+        #     'xy': (5, 5),
+        #     'target_xy': (np.where(i_obs[2] == 1)[0][0], np.where(i_obs[2] == 1)[1][0]),
+        #     'obstacles': i_obs[0],
+        #     'agents': i_obs[1],
+        # }
+        # action = agents[i_obs_index].act(agent_obs)
+        action = agents[i_obs_index].act(i_obs)
         actions.append(action)
     return actions
 
 
 def main():
-    num_agents = 2
+    num_agents = 10
+    max_episode_steps = 128
+
     # Define random configuration
     grid_config = GridConfig(
         num_agents=num_agents,  # number of agents
-        size=8,  # size of the grid
+        size=12,  # size of the grid
         density=0.2,  # obstacle density
         seed=1,  # set to None for random
         # obstacles, agents and targets
         # positions at each reset
-        max_episode_steps=128,  # horizon
-        obs_radius=5,  # defines field of view
+        max_episode_steps=max_episode_steps,  # horizon
+        obs_radius=3,  # defines field of view
+        observation_type='MAPF'
     )
     # env = pogema_v0(grid_config=Hard8x8())
     env = pogema_v0(grid_config=grid_config)
@@ -182,21 +183,20 @@ def main():
 
     obs = env.reset()
 
-    while True:
+    # while True:
+    for i in range(max_episode_steps):
         # Using random policy to make actions
         actions = get_actions(agents, obs)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
+        print(f'iter: {i}')
         if all(terminated):
             break
 
     env.save_animation("render.svg")
     env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
-    # env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0, static=True))
-    display(SVG('render.svg'))
-    plt.imshow(SVG('render.svg'))
-    plt.show()
 
 
 if __name__ == '__main__':
     main()
+

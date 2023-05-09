@@ -4,6 +4,9 @@ from IPython.display import SVG, display
 
 
 def main():
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
     # Configure grid
     grid = """
     .....#.....
@@ -21,10 +24,13 @@ def main():
 
     # Define new configuration with 8 randomly placed agents
     grid_config = GridConfig(map=grid, num_agents=8)
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
     # or:
     grid_config = GridConfig(
         num_agents=4,  # number of agents
-        size=16,  # size of the grid
+        size=32,  # size of the grid
         density=0.2,  # obstacle density
         seed=1,  # set to None for random
         # obstacles, agents and targets
@@ -32,6 +38,9 @@ def main():
         max_episode_steps=128,  # horizon
         obs_radius=5,  # defines field of view
     )
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
+    # ------------------------------------------------------------------ #
     env = pogema_v0(grid_config=grid_config)
     # env = pogema_v0(grid_config=Hard8x8())
     env = AnimationMonitor(env)
