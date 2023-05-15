@@ -28,16 +28,16 @@ def main():
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #
     # or:
-    grid_config = GridConfig(
-        num_agents=4,  # number of agents
-        size=32,  # size of the grid
-        density=0.2,  # obstacle density
-        seed=1,  # set to None for random
-        # obstacles, agents and targets
-        # positions at each reset
-        max_episode_steps=128,  # horizon
-        obs_radius=5,  # defines field of view
-    )
+    # grid_config = GridConfig(
+    #     num_agents=4,  # number of agents
+    #     size=32,  # size of the grid
+    #     density=0.2,  # obstacle density
+    #     seed=1,  # set to None for random
+    #     # obstacles, agents and targets
+    #     # positions at each reset
+    #     max_episode_steps=128,  # horizon
+    #     obs_radius=5,  # defines field of view
+    # )
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #

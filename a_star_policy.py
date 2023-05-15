@@ -156,13 +156,13 @@ def get_actions(agents, obs):
 
 
 def main():
-    num_agents = 10
-    max_episode_steps = 128
+    num_agents = 57
+    max_episode_steps = 1000
 
     # Define random configuration
     grid_config = GridConfig(
         num_agents=num_agents,  # number of agents
-        size=12,  # size of the grid
+        size=30,  # size of the grid
         density=0.2,  # obstacle density
         seed=1,  # set to None for random
         # obstacles, agents and targets
