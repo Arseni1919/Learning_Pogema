@@ -1,3 +1,4 @@
+import numpy as np
 from pogema import pogema_v0, Hard8x8, GridConfig
 from pogema.animation import AnimationMonitor, AnimationConfig
 from IPython.display import SVG, display
@@ -21,9 +22,10 @@ def main():
     ...........
     .....#.....
     """
+    num_agents = 8
 
     # Define new configuration with 8 randomly placed agents
-    grid_config = GridConfig(map=grid, num_agents=8)
+    grid_config = GridConfig(map=grid, num_agents=num_agents)
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #
@@ -48,7 +50,10 @@ def main():
 
     while True:
         # Using random policy to make actions
-        obs, reward, terminated, info = env.step(env.sample_actions())  # and here
+        actions = env.sample_actions()
+        # actions = [4 * 1 for _ in range(num_agents)]
+        print(actions)
+        obs, reward, terminated, info = env.step(actions)  # and here
         # env.render()
         if all(terminated):
             break
