@@ -79,9 +79,13 @@ if __name__ == '__main__':
 ## Actions
 
 0 - idle
+
 1 - up
+
 2 - down
+
 3 - left
+
 4 - right
 
 ## Configurations and Observations
