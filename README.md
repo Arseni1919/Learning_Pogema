@@ -90,6 +90,17 @@ if __name__ == '__main__':
 
 ## Configurations and Observations
 
+To change configuration do:
+```python
+from pogema import pogema_v0, GridConfig
+grid_config = GridConfig(
+    ...,
+    observation_type='MAPF'
+)
+env = pogema_v0(grid_config=grid_config)
+...
+```
+
 There are two types of configurations:
 
 ### 'POMAPF'
