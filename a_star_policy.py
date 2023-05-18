@@ -4,6 +4,7 @@ from pogema.animation import AnimationMonitor, AnimationConfig
 from IPython.display import SVG, display
 from heapq import heappop, heappush
 import matplotlib.pyplot as plt
+from plot_functions.plot_objects import Plotter
 
 INF = 1e7
 
@@ -158,6 +159,7 @@ def get_actions(agents, obs):
 def main():
     num_agents = 57
     max_episode_steps = 1000
+    plotter = Plotter()
 
     # Define random configuration
     grid_config = GridConfig(
@@ -190,6 +192,7 @@ def main():
         obs, reward, terminated, info = env.step(actions)
         # env.render()
         print(f'iter: {i}')
+        plotter.render(info={'obs': obs})
         if all(terminated):
             break
 
