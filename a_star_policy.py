@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from pogema import pogema_v0, Hard8x8, GridConfig
 from pogema.animation import AnimationMonitor, AnimationConfig
@@ -157,16 +159,18 @@ def get_actions(agents, obs):
 
 
 def main():
-    num_agents = 57
+    num_agents = 10
     max_episode_steps = 1000
     plotter = Plotter()
+    # seed = 10
+    seed = random.randint(0, 100)
 
     # Define random configuration
     grid_config = GridConfig(
         num_agents=num_agents,  # number of agents
         size=30,  # size of the grid
         density=0.2,  # obstacle density
-        seed=1,  # set to None for random
+        seed=seed,  # set to None for random
         # obstacles, agents and targets
         # positions at each reset
         max_episode_steps=max_episode_steps,  # horizon
@@ -192,7 +196,11 @@ def main():
         obs, reward, terminated, info = env.step(actions)
         # env.render()
         print(f'iter: {i}')
-        plotter.render(info={'obs': obs})
+        plotter.render(info={
+            'i_step': i,
+            'obs': obs,
+            'num_agents': num_agents
+        })
         if all(terminated):
             break
 

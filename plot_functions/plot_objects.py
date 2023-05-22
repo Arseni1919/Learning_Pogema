@@ -3,7 +3,7 @@ import time
 import matplotlib.pyplot as plt
 
 from globals import *
-from plot_functions import *
+from plot_functions.plot_functions import *
 
 
 class Plotter:
@@ -21,8 +21,8 @@ class Plotter:
                 info.update({})
 
                 # plot_mst_field(self.ax['A'], info)
-                plot_example(self.ax['A'], info)
-                plot_example(self.ax['B'], info)
+                plot_field(self.ax['A'], info)
+                plot_nei_agents(self.ax['B'], info)
                 plot_example(self.ax['C'], info)
 
                 plt.pause(0.001)
