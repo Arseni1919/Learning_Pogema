@@ -1,13 +1,15 @@
 import numpy.random
-
 from globals import *
 from plot_functions.plot_objects import Plotter
+from alg_temporal_a_star import build_graph_nodes, build_heuristic_for_multiple_targets
+from alg_temporal_a_star import h_func_creator, a_star
 
 
 class PoSdsAgent:
-    def __init__(self, num, obs_radius):
+    def __init__(self, num, obs_radius, small_iters):
         self.num = num
         self.obs_radius = obs_radius
+        self.small_iters = small_iters
         self.name = f'agent_{num}'
         self.nei_list = []
         self.nei_dict = {}
@@ -19,10 +21,13 @@ class PoSdsAgent:
         self.global_obstacles = None
         self.global_xy = None
         self.global_target_xy = None
+        self.path = None
+        self.beliefs = None
 
-    def reset_all_nei(self):
+    def agent_reset(self):
         self.nei_list = []
         self.nei_dict = {}
+        self.beliefs = {i_small_iter: [] for i_small_iter in range(self.small_iters)}
 
     def add_nei(self, new_nei):
         self.nei_list.append(new_nei)
@@ -37,15 +42,25 @@ class PoSdsAgent:
         self.global_xy = i_obs['global_xy']
         self.global_target_xy = i_obs['global_target_xy']
 
+    def plan(self, nodes, nodes_dict, h_func):
+        node_start = nodes_dict[f'{self.global_xy[0]}_{self.global_xy[1]}']
+        node_goal = nodes_dict[f'{self.global_target_xy[0]}_{self.global_target_xy[1]}']
+        v_constr_dict = {node.xy_name: [] for node in nodes}
+        perm_constr_dict = {node.xy_name: [] for node in nodes}
+        self.path, info = a_star(start=node_start, goal=node_goal, nodes=nodes, h_func=h_func,
+                                 v_constr_dict=v_constr_dict, perm_constr_dict=perm_constr_dict,
+                                 plotter=None, middle_plot=True, nodes_dict=nodes_dict,
+                                 )
+
 
 def update_all_agents_their_obs(agents, obs):
     for i_obs_index, i_obs in enumerate(obs):
         agents[i_obs_index].update(i_obs)
 
 
-def remove_all_agents_their_nei(agents):
+def reset_agents(agents):
     for agent in agents:
-        agent.reset_all_nei()
+        agent.agent_reset()
 
 
 def set_all_agents_their_nei(agents):
@@ -59,14 +74,16 @@ def set_all_agents_their_nei(agents):
         # print(f'{curr_agent.name} nei: {[nei.name for nei in curr_agent.nei_list]}')
 
 
-def get_actions(agents, obs, small_iters):
+def get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func):
     # update obs
     update_all_agents_their_obs(agents, obs)
     # reset neighbours
-    remove_all_agents_their_nei(agents)
+    reset_agents(agents)
     set_all_agents_their_nei(agents)
+
     # calc initial path
-    pass
+    for agent in agents:
+        agent.plan(nodes, nodes_dict, h_func)
     for i_iter in range(small_iters):
         # exchange paths with neighbors
         pass
@@ -112,14 +129,24 @@ def main():
     # create agents
     agents = []
     for i in range(num_agents):
-        agent = PoSdsAgent(num=i, obs_radius=obs_radius)
+        agent = PoSdsAgent(num=i, obs_radius=obs_radius, small_iters=small_iters)
         agents.append(agent)
 
     obs = env.reset()
+    update_all_agents_their_obs(agents, obs)
+    # prebuild map
+    img_np = obs[0]['global_obstacles']
+    img_np = 1 - img_np
+    map_dim = img_np.shape
+    nodes, nodes_dict = build_graph_nodes(img_np=img_np, show_map=False)
+    # heuristic
+    node_goals = [nodes_dict[f'{agent.global_xy[0]}_{agent.global_xy[1]}'] for agent in agents]
+    h_dict = build_heuristic_for_multiple_targets(node_goals, nodes, map_dim)
+    h_func = h_func_creator(h_dict)
 
     # while True:
     for i in range(max_episode_steps):
-        actions = get_actions(agents, obs, small_iters)
+        actions = get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
         print(f'iter: {i}')
