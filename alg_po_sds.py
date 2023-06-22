@@ -49,16 +49,32 @@ def remove_all_agents_their_nei(agents):
 
 
 def set_all_agents_their_nei(agents):
-    pass
+    for curr_agent in agents:
+        for agent_2 in agents:
+            if curr_agent.name != agent_2.name:
+                x_dist = np.abs(curr_agent.global_xy[0] - agent_2.global_xy[0])
+                y_dist = np.abs(curr_agent.global_xy[1] - agent_2.global_xy[1])
+                if x_dist < curr_agent.obs_radius and y_dist < curr_agent.obs_radius:
+                    curr_agent.add_nei(agent_2)
+        # print(f'{curr_agent.name} nei: {[nei.name for nei in curr_agent.nei_list]}')
 
 
-def get_actions(agents, obs):
+def get_actions(agents, obs, small_iters):
     # update obs
     update_all_agents_their_obs(agents, obs)
     # reset neighbours
     remove_all_agents_their_nei(agents)
     set_all_agents_their_nei(agents)
-    # exchange messages with neighbours
+    # calc initial path
+    pass
+    for i_iter in range(small_iters):
+        # exchange paths with neighbors
+        pass
+        # detect collision + recalculate path
+        pass
+        # termination condition
+        pass
+
     # decide on the next action
     actions = []
     for i_obs_index, i_obs in enumerate(obs):
@@ -69,8 +85,9 @@ def get_actions(agents, obs):
 
 
 def main():
-    num_agents = 10
+    num_agents = 5
     max_episode_steps = 1000
+    small_iters = 3
     plotter = Plotter()
     # seed = 10
     seed = random.randint(0, 100)
@@ -102,7 +119,7 @@ def main():
 
     # while True:
     for i in range(max_episode_steps):
-        actions = get_actions(agents, obs)
+        actions = get_actions(agents, obs, small_iters)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
         print(f'iter: {i}')
