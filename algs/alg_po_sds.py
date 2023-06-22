@@ -52,6 +52,13 @@ class PoSdsAgent:
                                  plotter=None, middle_plot=True, nodes_dict=nodes_dict,
                                  )
 
+    def send_path_to_nei(self, i_iter):
+        for nei in self.nei_list:
+            nei.beliefs[i_iter].append(self.path)
+
+    def recalc_path(self):
+        pass
+
 
 def update_all_agents_their_obs(agents, obs):
     for i_obs_index, i_obs in enumerate(obs):
@@ -86,9 +93,11 @@ def get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func):
         agent.plan(nodes, nodes_dict, h_func)
     for i_iter in range(small_iters):
         # exchange paths with neighbors
-        pass
+        for agent in agents:
+            agent.send_path_to_nei(i_iter)
         # detect collision + recalculate path
-        pass
+        for agent in agents:
+            agent.recalc_path()
         # termination condition
         pass
 
