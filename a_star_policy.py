@@ -192,6 +192,7 @@ def main():
     # while True:
     for i in range(max_episode_steps):
         # Using random policy to make actions
+        # TODO: here message exchange
         actions = get_actions(agents, obs)
         obs, reward, terminated, info = env.step(actions)
         # env.render()

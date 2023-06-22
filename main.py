@@ -4,6 +4,18 @@ from pogema.animation import AnimationMonitor, AnimationConfig
 from IPython.display import SVG, display
 
 
+class SDSAgent:
+    def __init__(self):
+        # agent_name: [agent's path]
+        self.beliefs = {}
+
+    def send_message(self):
+        pass
+
+    def decide(self):
+        pass
+
+
 def main():
     # ------------------------------------------------------------------ #
     # ------------------------------------------------------------------ #
