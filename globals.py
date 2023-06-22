@@ -31,6 +31,10 @@ import json
 import cProfile
 import pstats
 
+from pogema import pogema_v0, Hard8x8, GridConfig
+from pogema.animation import AnimationMonitor, AnimationConfig
+from IPython.display import SVG, display
+
 
 class AttributeDict(dict):
     __getattr__ = dict.__getitem__
