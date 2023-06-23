@@ -61,6 +61,11 @@ def build_constraints(nodes, other_paths):
 
     for agent_name, path in other_paths.items():
         if len(path) > 0:
+
+            # correct times
+            for indx_node, node in enumerate(path):
+                node.t = indx_node
+
             final_node = path[-1]
             perm_constr_dict[final_node.xy_name].append(final_node.t)
 
@@ -94,6 +99,7 @@ class PoSdsAgent:
         self.path = None
         self.beliefs = None
         self.a_star_iter_limit = 1e100
+        self.arrived = False
 
     def agent_reset(self):
         self.nei_list = []
@@ -101,8 +107,9 @@ class PoSdsAgent:
         self.beliefs = {i_small_iter: {} for i_small_iter in range(self.small_iters)}
 
     def add_nei(self, new_nei):
-        self.nei_list.append(new_nei)
-        self.nei_dict[new_nei.name] = new_nei
+        if new_nei.name not in self.nei_dict:
+            self.nei_list.append(new_nei)
+            self.nei_dict[new_nei.name] = new_nei
 
     def update(self, i_obs):
         self.obstacles = i_obs['obstacles']
@@ -112,8 +119,13 @@ class PoSdsAgent:
         self.global_obstacles = i_obs['global_obstacles']
         self.global_xy = i_obs['global_xy']
         self.global_target_xy = i_obs['global_target_xy']
+        if self.global_xy == self.global_target_xy:
+            self.arrived = True
 
     def plan(self, nodes, nodes_dict, h_func):
+        if self.arrived:
+            self.path = []
+            return
         node_start = nodes_dict[f'{self.global_xy[0]}_{self.global_xy[1]}']
         node_goal = nodes_dict[f'{self.global_target_xy[0]}_{self.global_target_xy[1]}']
         v_constr_dict = {node.xy_name: [] for node in nodes}
@@ -122,6 +134,8 @@ class PoSdsAgent:
                                  v_constr_dict=v_constr_dict, perm_constr_dict=perm_constr_dict,
                                  plotter=None, middle_plot=True, nodes_dict=nodes_dict,
                                  )
+        if self.path is None:
+            raise RuntimeError('self.path is None')
 
     def send_path_to_nei(self, i_iter):
         for nei in self.nei_list:
@@ -147,6 +161,8 @@ class PoSdsAgent:
         return False
 
     def recalc_path(self, nodes, nodes_dict, h_func, i_iter):
+        if self.arrived:
+            return True
         c_v_list = c_v_check_for_agent(self.name, self.path, self.beliefs[i_iter])
         c_e_list = c_e_check_for_agent(self.name, self.path, self.beliefs[i_iter])
         if len(self.path) == 0:
@@ -159,28 +175,47 @@ class PoSdsAgent:
             node_start = nodes_dict[f'{self.global_xy[0]}_{self.global_xy[1]}']
             node_goal = nodes_dict[f'{self.global_target_xy[0]}_{self.global_target_xy[1]}']
             v_constr_dict, e_constr_dict, perm_constr_dict = build_constraints(nodes, self.beliefs[i_iter])
-            self.path, info = a_star(start=node_start, goal=node_goal, nodes=nodes, h_func=h_func,
-                                     v_constr_dict=v_constr_dict, perm_constr_dict=perm_constr_dict,
-                                     nodes_dict=nodes_dict, iter_limit=self.a_star_iter_limit
-                                     )
+            # perm_constr_dict = {node.xy_name: [] for node in nodes}  # disappear at the end
+            new_path, info = a_star(start=node_start, goal=node_goal, nodes=nodes, h_func=h_func,
+                                    v_constr_dict=v_constr_dict, e_constr_dict=e_constr_dict,
+                                    perm_constr_dict=perm_constr_dict,
+                                    nodes_dict=nodes_dict, iter_limit=self.a_star_iter_limit
+                                    )
+            if new_path is not None:
+                self.path = new_path
         return False
 
     def get_next_action(self):
-        # 0 - idle, 1 - up, 2 - down, 3 - left, 4 - right
-        action = numpy.random.randint(0, 5)
+        """
+        ACTIONS:
+        0 - idle
+        1 - left (down in numbers), 2 - right (up in numbers), 3 - down (down in numbers), 4 - up (up in numbers)
+        """
+        # action = numpy.random.randint(0, 5)
+        # if arrived
+        if self.arrived:
+            return 0
         next_pos_node = self.path[1]
         curr_x, curr_y = self.global_xy
         next_x, next_y = next_pos_node.x, next_pos_node.y
         action = 0
-        if next_y > curr_y:
-            action = 2
-        if next_y < curr_y:
-            action = 1
+        # LEFT
         if next_x < curr_x:
-            action = 4
+            action = 1
+        # RIGHT
         if next_x > curr_x:
+            action = 2
+        # DOWN
+        if next_y < curr_y:
             action = 3
-        print(action)
+        # UP
+        if next_y > curr_y:
+            action = 4
+        # action = 2
+        # PRINT:
+        if self.num == 0:
+            print(f"\n{self.name}'s action: {action}")
+            print(f"{self.name}'s pos: {self.global_xy}")
         return action
 
 
@@ -196,12 +231,14 @@ def reset_agents(agents):
 
 def set_all_agents_their_nei(agents):
     for curr_agent in agents:
-        for agent_2 in agents:
-            if curr_agent.name != agent_2.name:
-                x_dist = np.abs(curr_agent.global_xy[0] - agent_2.global_xy[0])
-                y_dist = np.abs(curr_agent.global_xy[1] - agent_2.global_xy[1])
-                if x_dist < curr_agent.obs_radius and y_dist < curr_agent.obs_radius:
-                    curr_agent.add_nei(agent_2)
+        if not curr_agent.arrived:
+            for agent_2 in agents:
+                if curr_agent.name != agent_2.name:
+                    if not agent_2.arrived:
+                        x_dist = np.abs(curr_agent.global_xy[0] - agent_2.global_xy[0])
+                        y_dist = np.abs(curr_agent.global_xy[1] - agent_2.global_xy[1])
+                        if x_dist < curr_agent.obs_radius and y_dist < curr_agent.obs_radius:
+                            curr_agent.add_nei(agent_2)
         # print(f'{curr_agent.name} nei: {[nei.name for nei in curr_agent.nei_list]}')
 
 
@@ -232,17 +269,20 @@ def get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func):
     actions = []
     for agent in agents:
         actions.append(agent.get_next_action())
+        # actions.append(0)
+    # not_arrived_agents = [agent for agent in agents if not agent.arrived]
+    # print(not_arrived_agents)
     return actions
 
 
 def main():
-    num_agents = 25
+    num_agents = 20
     max_episode_steps = 1000
     small_iters = 3
-    plotter = Plotter()
-    # seed = 10
-    seed = random.randint(0, 100)
     obs_radius = 3
+    plotter = Plotter()
+    seed = 10
+    # seed = random.randint(0, 100)
 
     # Define random configuration
     grid_config = GridConfig(
@@ -259,20 +299,21 @@ def main():
     # env = pogema_v0(grid_config=Hard8x8())
     env = pogema_v0(grid_config=grid_config)
     env = AnimationMonitor(env)
+    obs = env.reset()
+
+    # prebuild map
+    img_np = obs[0]['global_obstacles']
+    img_np = 1 - img_np
+    map_dim = img_np.shape
+    nodes, nodes_dict = build_graph_nodes(img_np=img_np, show_map=False)
 
     # create agents
     agents = []
     for i in range(num_agents):
         agent = PoSdsAgent(num=i, obs_radius=obs_radius, small_iters=small_iters)
         agents.append(agent)
-
-    obs = env.reset()
     update_all_agents_their_obs(agents, obs)
-    # prebuild map
-    img_np = obs[0]['global_obstacles']
-    img_np = 1 - img_np
-    map_dim = img_np.shape
-    nodes, nodes_dict = build_graph_nodes(img_np=img_np, show_map=False)
+
     # heuristic
     node_goals = [nodes_dict[f'{agent.global_xy[0]}_{agent.global_xy[1]}'] for agent in agents]
     h_dict = build_heuristic_for_multiple_targets(node_goals, nodes, map_dim)
@@ -283,7 +324,7 @@ def main():
         actions = get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
-        print(f'\niter: {i}')
+        print(f'\n[PO-SDS] step: {i}')
         plotter.render(info={
             'i_step': i,
             'obs': obs,

@@ -159,11 +159,12 @@ def get_actions(agents, obs):
 
 
 def main():
-    num_agents = 10
+    num_agents = 20
     max_episode_steps = 1000
+    obs_radius = 3
     plotter = Plotter()
-    # seed = 10
-    seed = random.randint(0, 100)
+    seed = 10
+    # seed = random.randint(0, 100)
 
     # Define random configuration
     grid_config = GridConfig(
@@ -174,7 +175,7 @@ def main():
         # obstacles, agents and targets
         # positions at each reset
         max_episode_steps=max_episode_steps,  # horizon
-        obs_radius=3,  # defines field of view
+        obs_radius=obs_radius,  # defines field of view
         observation_type='MAPF'
     )
     # env = pogema_v0(grid_config=Hard8x8())
@@ -196,7 +197,7 @@ def main():
         actions = get_actions(agents, obs)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
-        print(f'iter: {i}')
+        print(f'[A* Policy] step: {i}')
         plotter.render(info={
             'i_step': i,
             'obs': obs,

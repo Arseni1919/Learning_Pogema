@@ -16,7 +16,7 @@ def plot_field(ax, info):
     global_obstacles = obs_agent['global_obstacles'] * -1
     global_obstacles = np.transpose(global_obstacles)
     # ax.imshow(global_obstacles, origin='lower', cmap='gray')
-    ax.imshow(global_obstacles, cmap='gray')
+    ax.imshow(global_obstacles, cmap='gray', origin='lower')
 
     # plot agents
     for i in range(num_agents):
@@ -24,7 +24,8 @@ def plot_field(ax, info):
 
         # target
         global_target_xy = obs_agent['global_target_xy']
-        target_circle = plt.Circle((global_target_xy[0], global_target_xy[1]), 1, color='red', alpha=1)
+        color = 'yellow' if i == 0 else 'red'
+        target_circle = plt.Circle((global_target_xy[0], global_target_xy[1]), 1, color=color, alpha=1)
         # target_circle = plt.Circle((global_target_xy[1], global_target_xy[0]), 1, color='red', alpha=1)
         ax.add_patch(target_circle)
 

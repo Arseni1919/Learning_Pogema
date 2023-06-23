@@ -78,15 +78,13 @@ if __name__ == '__main__':
 
 ## Actions
 
+```python
+"""
+ACTIONS:
 0 - idle
-
-1 - up
-
-2 - down
-
-3 - left
-
-4 - right
+1 - left (down in numbers), 2 - right (up in numbers), 3 - down (down in numbers), 4 - up (up in numbers)
+"""
+```
 
 ## Configurations and Observations
 
