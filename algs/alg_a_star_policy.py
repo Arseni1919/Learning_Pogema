@@ -158,11 +158,47 @@ def get_actions(agents, obs):
     return actions
 
 
+def run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, *args, **kwargs):
+    step_counter = 0
+    soc_counter = 0
+    succeeded = True
+
+    obs = env.reset()
+    # create agents
+    agents = []
+    for i in range(num_agents):
+        agent = AStarAgent()
+        agents.append(agent)
+    # while True:
+    for i in range(max_episode_steps):
+        step_counter += 1
+        actions = get_actions(agents, obs)
+        obs, reward, terminated, info = env.step(actions)
+        # env.render()
+        print(f'[A* Policy] step: {i}')
+        if plotter:
+            plotter.render(info={
+                'i_step': i,
+                'obs': obs,
+                'num_agents': num_agents
+            })
+        if all(terminated):
+            break
+        else:
+            soc_counter += sum(terminated)
+        if i >= max_episode_steps:
+            succeeded = False
+
+    # env.save_animation("render.svg")
+    # env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
+    stat_info = {'steps': step_counter, 'soc': soc_counter, 'succeeded': succeeded}
+    return stat_info
+
+
 def main():
     num_agents = 20
     max_episode_steps = 1000
     obs_radius = 3
-    plotter = Plotter()
     seed = 10
     # seed = random.randint(0, 100)
 
@@ -182,32 +218,9 @@ def main():
     env = pogema_v0(grid_config=grid_config)
     env = AnimationMonitor(env)
 
-    # create agents
-    agents = []
-    for i in range(num_agents):
-        agent = AStarAgent()
-        agents.append(agent)
+    plotter = Plotter()
 
-    obs = env.reset()
-
-    # while True:
-    for i in range(max_episode_steps):
-        # Using random policy to make actions
-        # TODO: here message exchange
-        actions = get_actions(agents, obs)
-        obs, reward, terminated, info = env.step(actions)
-        # env.render()
-        print(f'[A* Policy] step: {i}')
-        plotter.render(info={
-            'i_step': i,
-            'obs': obs,
-            'num_agents': num_agents
-        })
-        if all(terminated):
-            break
-
-    env.save_animation("render.svg")
-    env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
+    run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter)
 
 
 if __name__ == '__main__':

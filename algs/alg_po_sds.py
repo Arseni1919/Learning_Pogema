@@ -275,31 +275,13 @@ def get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func):
     return actions
 
 
-def main():
-    num_agents = 20
-    max_episode_steps = 1000
-    small_iters = 3
-    obs_radius = 3
-    plotter = Plotter()
-    seed = 10
-    # seed = random.randint(0, 100)
+def run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, *args, **kwargs):
+    step_counter = 0
+    soc_counter = 0
+    succeeded = True
 
-    # Define random configuration
-    grid_config = GridConfig(
-        num_agents=num_agents,  # number of agents
-        size=30,  # size of the grid
-        density=0.2,  # obstacle density
-        seed=seed,  # set to None for random
-        # obstacles, agents and targets
-        # positions at each reset
-        max_episode_steps=max_episode_steps,  # horizon
-        obs_radius=obs_radius,  # defines field of view
-        observation_type='MAPF'
-    )
-    # env = pogema_v0(grid_config=Hard8x8())
-    env = pogema_v0(grid_config=grid_config)
-    env = AnimationMonitor(env)
     obs = env.reset()
+    small_iters = kwargs['small_iters']
 
     # prebuild map
     img_np = obs[0]['global_obstacles']
@@ -321,20 +303,58 @@ def main():
 
     # while True:
     for i in range(max_episode_steps):
+        step_counter += 1
         actions = get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
         print(f'\n[PO-SDS] step: {i}')
-        plotter.render(info={
-            'i_step': i,
-            'obs': obs,
-            'num_agents': num_agents
-        })
+        if plotter:
+            plotter.render(info={
+                'i_step': i,
+                'obs': obs,
+                'num_agents': num_agents
+            })
         if all(terminated):
             break
+        else:
+            soc_counter += sum(terminated)
+        if i >= max_episode_steps:
+            succeeded = False
 
     # env.save_animation("render.svg")
     # env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
+
+    stat_info = {'steps': step_counter, 'soc': soc_counter, 'succeeded': succeeded}
+    return stat_info
+
+
+def main():
+    num_agents = 20
+    max_episode_steps = 1000
+    small_iters = 3
+    obs_radius = 3
+    # seed = 10
+    seed = random.randint(0, 100)
+
+    # Define random configuration
+    grid_config = GridConfig(
+        num_agents=num_agents,  # number of agents
+        size=30,  # size of the grid
+        density=0.2,  # obstacle density
+        seed=seed,  # set to None for random
+        # obstacles, agents and targets
+        # positions at each reset
+        max_episode_steps=max_episode_steps,  # horizon
+        obs_radius=obs_radius,  # defines field of view
+        observation_type='MAPF'
+    )
+    # env = pogema_v0(grid_config=Hard8x8())
+    env = pogema_v0(grid_config=grid_config)
+    env = AnimationMonitor(env)
+
+    plotter = Plotter()
+
+    run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, small_iters=small_iters)
 
 
 if __name__ == '__main__':

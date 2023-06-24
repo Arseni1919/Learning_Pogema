@@ -28,6 +28,9 @@ class Plotter:
                 plt.pause(0.001)
                 # plt.show()
 
+    def plot_big_test(self, to_save_dict, num_agents=None, is_json=False):
+        pass
+
 
 def main():
     plotter = Plotter()

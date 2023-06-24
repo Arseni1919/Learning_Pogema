@@ -1,11 +1,10 @@
 """
 DONE:
 - usage instructions in README.md
+- implement PO-SDS
 
 TODO:
-- implement PO-SDS
-- build metrics
-- compare to their A* - big experiments
+- build metrics + compare PO-SDS to A* Policy - big experiments
 - save results
 - plot graphs
 - write a report + presentation
