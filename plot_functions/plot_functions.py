@@ -1,9 +1,85 @@
+import numpy as np
+
 from globals import *
 
 
 def plot_example(ax, info):
     ax.cla()
     ax.plot([1, 2, 10])
+
+
+def plot_csr(ax, info):
+    """
+    info={
+        'to_save_dict': to_save_dict,
+        'num_agents': num_agents,
+        'is_json': is_json
+    }
+    """
+    ax.cla()
+    stats_dict = info['to_save_dict']['stats_dict']
+    n_agents_list = info['to_save_dict']['n_agents_list']
+    algs_to_test_list = info['to_save_dict']['algs_to_test_list']
+    num_agents = info['num_agents']
+    is_json = info['is_json']
+
+    for alg_name in algs_to_test_list:
+        csr_list = []
+        x_list = []
+        for i_num_agents in n_agents_list:
+            i_num_agents_index = i_num_agents
+            if is_json:
+                i_num_agents_index = f'{i_num_agents_index}'
+            succeeded_list = stats_dict[alg_name][i_num_agents_index]['succeeded_list']
+            if len(succeeded_list) > 0:
+                csr_v = sum(succeeded_list) / len(succeeded_list)
+                csr_list.append(csr_v)
+                x_list.append(i_num_agents)
+            if i_num_agents == num_agents:
+                break
+        ax.plot(x_list, csr_list, label=f'{alg_name}', marker='.')
+    ax.legend()
+    ax.set_title(f'CSR')
+    ax.set_ylabel('CSR')
+    ax.set_xlabel('N agents')
+    ax.set_xticks(n_agents_list)
+
+
+def plot_soc(ax, info):
+    """
+    info={
+        'to_save_dict': to_save_dict,
+        'num_agents': num_agents,
+        'is_json': is_json
+    }
+    """
+    ax.cla()
+    stats_dict = info['to_save_dict']['stats_dict']
+    n_agents_list = info['to_save_dict']['n_agents_list']
+    algs_to_test_list = info['to_save_dict']['algs_to_test_list']
+    num_agents = info['num_agents']
+    is_json = info['is_json']
+
+    for alg_name in algs_to_test_list:
+        soc_metric_list = []
+        x_list = []
+        for i_num_agents in n_agents_list:
+            i_num_agents_index = i_num_agents
+            if is_json:
+                i_num_agents_index = f'{i_num_agents_index}'
+            soc_list = stats_dict[alg_name][i_num_agents_index]['soc_list']
+            if len(soc_list) > 0:
+                soc_v = np.mean(soc_list)
+                soc_metric_list.append(soc_v)
+                x_list.append(i_num_agents)
+            if i_num_agents == num_agents:
+                break
+        ax.plot(x_list, soc_metric_list, label=f'{alg_name}', marker='.')
+    ax.legend()
+    ax.set_title(f'SoC')
+    ax.set_ylabel('SoC')
+    ax.set_xlabel('N agents')
+    ax.set_xticks(n_agents_list)
 
 
 def plot_field(ax, info):

@@ -1,3 +1,5 @@
+import random
+
 from globals import *
 
 from plot_functions.plot_objects import Plotter
@@ -49,9 +51,10 @@ def update_statistics_dict(stats_dict, alg_name, n_agents, alg_info):
         stats_dict[alg_name][n_agents]['steps_list'].append(alg_info['steps'])
 
 
-def set_seed(random_seed, seed):
+def set_seed(random_seed, seed, seeds):
     if random_seed:
-        seed = random.choice(range(1000))
+        seed = seeds.pop()
+
     random.seed(seed)
     np.random.seed(seed)
     print(f'SEED: {seed}')
@@ -65,7 +68,9 @@ def big_test(
         time_per_alg_limit,
         random_seed: bool,
         seed: int,
+        seeds,
         plotter,
+        plot_per,
         to_save_results,
         file_dir,
         profiler=None,
@@ -88,7 +93,7 @@ def big_test(
         # for same starts and goals
         for i_run in range(runs_per_n_agents):
 
-            curr_seed = set_seed(random_seed, seed)
+            curr_seed = set_seed(random_seed, seed, seeds)
 
             # for at max 5 minutes
             for alg_name, (alg, params) in algs_to_test_dict.items():
@@ -109,7 +114,9 @@ def big_test(
                 env = pogema_v0(grid_config=grid_config)
                 env = AnimationMonitor(env)
 
-                alg_info = alg(env, num_agents, time_per_alg_limit, obs_radius, plotter, **params)
+                params['plot_per'] = plot_per
+                # alg_info = alg(env, num_agents, time_per_alg_limit, obs_radius, plotter, **params)
+                alg_info = alg(env, num_agents, time_per_alg_limit, obs_radius, None, **params)
 
                 # plot + print
                 print(f'\n#########################################################')
@@ -121,7 +128,7 @@ def big_test(
                 print(f'#########################################################')
                 print(f'#########################################################')
                 print(f'#########################################################')
-                print(f'\r[{num_agents} agents][{i_run} run][{alg_name}] -> success_rate: {alg_info["succeeded"]}\n')
+                print(f'\r[{num_agents} agents][{i_run + 1} run][{alg_name}] -> succeeded: {alg_info["succeeded"]}, steps: {alg_info["steps"]}\n')
                 update_statistics_dict(stats_dict, alg_name, num_agents, alg_info)
                 if i_run % 1 == 0:
                     plotter.plot_big_test(to_save_dict, num_agents=num_agents)
@@ -146,33 +153,36 @@ def main():
         })
     }
 
-    n_agents_list = [2, 3, 4, 5]
+    # n_agents_list = [2, 3, 4, 5]
     # n_agents_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     # n_agents_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
     # n_agents_list = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    # n_agents_list = [10, 20, 30, 40]
+    # n_agents_list = [5, 10, 15, 20, 25, 30, 35, 40]
+    n_agents_list = [10, 20, 30, 40]
     # n_agents_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]  # !!!!!!!!!!!!!!!!!
 
     # runs_per_n_agents = 50
     # runs_per_n_agents = 25
     # runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
-    runs_per_n_agents = 10
+    # runs_per_n_agents = 10
     # runs_per_n_agents = 5
     # runs_per_n_agents = 1
-    # runs_per_n_agents = 3
+    runs_per_n_agents = 3
 
     random_seed = True
     # random_seed = False
     seed = 116
+    seeds = list(range(10000))
+    random.shuffle(seeds)
 
-    # time_per_alg_limit = 0.1
-    # time_per_alg_limit = 3
     time_per_alg_limit = 50
+    # time_per_alg_limit = 500
 
-    plotter = Plotter()
+    plotter = Plotter(for_big_experiments=True)
+    plot_per = 20
 
-    # to_save_results = True
-    to_save_results = False
+    to_save_results = True
+    # to_save_results = False
     file_dir = f'logs_for_graphs/{datetime.now().strftime("%Y-%m-%d--%H-%M")}_ALGS-{len(algs_to_test_dict)}_RUNS-{runs_per_n_agents}.json'
 
     # profiler = None
@@ -187,7 +197,9 @@ def main():
         time_per_alg_limit=time_per_alg_limit,
         random_seed=random_seed,
         seed=seed,
+        seeds=seeds,
         plotter=plotter,
+        plot_per=plot_per,
         to_save_results=to_save_results,
         file_dir=file_dir,
         profiler=profiler,

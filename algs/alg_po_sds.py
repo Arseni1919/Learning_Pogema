@@ -1,8 +1,8 @@
 import numpy.random
 from globals import *
 from plot_functions.plot_objects import Plotter
-from alg_temporal_a_star import build_graph_nodes, build_heuristic_for_multiple_targets
-from alg_temporal_a_star import h_func_creator, a_star
+from algs.alg_temporal_a_star import build_graph_nodes, build_heuristic_for_multiple_targets
+from algs.alg_temporal_a_star import h_func_creator, a_star
 
 
 def c_v_check_for_agent(agent_1: str, path_1, results, immediate=False):
@@ -211,11 +211,6 @@ class PoSdsAgent:
         # UP
         if next_y > curr_y:
             action = 4
-        # action = 2
-        # PRINT:
-        if self.num == 0:
-            print(f"\n{self.name}'s action: {action}")
-            print(f"{self.name}'s pos: {self.global_xy}")
         return action
 
 
@@ -282,6 +277,7 @@ def run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, *args, *
 
     obs = env.reset()
     small_iters = kwargs['small_iters']
+    plot_per = kwargs['plot_per']
 
     # prebuild map
     img_np = obs[0]['global_obstacles']
@@ -307,18 +303,19 @@ def run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, *args, *
         actions = get_actions(agents, obs, small_iters, nodes, nodes_dict, h_func)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
-        print(f'\n[PO-SDS] step: {i}')
+        print(f'\r[PO-SDS] step: {i}', end='')
         if plotter:
-            plotter.render(info={
-                'i_step': i,
-                'obs': obs,
-                'num_agents': num_agents
-            })
+            if i % plot_per == 0:
+                plotter.render(info={
+                    'i_step': i,
+                    'obs': obs,
+                    'num_agents': num_agents
+                })
         if all(terminated):
             break
         else:
             soc_counter += sum(terminated)
-        if i >= max_episode_steps:
+        if step_counter >= max_episode_steps-1:
             succeeded = False
 
     # env.save_animation("render.svg")

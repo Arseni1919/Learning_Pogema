@@ -100,7 +100,7 @@ def build_heuristic_for_one_target(target_node, nodes, map_dim, to_save=True, pl
 
 
 def build_heuristic_for_multiple_targets(target_nodes, nodes, map_dim, to_save=True, plotter=None, middle_plot=False):
-    print('Started to build heuristic...')
+    # print('Started to build heuristic...')
     h_dict = {}
     _ = [node.reset(target_nodes) for node in nodes]
     iteration = 0
@@ -108,7 +108,7 @@ def build_heuristic_for_multiple_targets(target_nodes, nodes, map_dim, to_save=T
         h_table = build_heuristic_for_one_target(node, nodes, map_dim, to_save, plotter, middle_plot)
         h_dict[node.xy_name] = h_table
 
-        print(f'\nFinished to build heuristic for node {iteration}.')
+        # print(f'\nFinished to build heuristic for node {iteration}.')
         iteration += 1
     return h_dict
 
@@ -289,7 +289,7 @@ def a_star(start, goal, nodes, h_func,
     start_time = time.time()
     # start, goal, nodes = deepcopy_nodes(start, goal, nodes)  # heavy!
     start, goal, nodes = reset_nodes(start, goal, nodes, **kwargs)
-    print('\rStarted A*...', end='')
+    # print('\rStarted A*...', end='')
     open_nodes = ListNodes()
     closed_nodes = ListNodes()
     node_current = start
@@ -360,7 +360,7 @@ def a_star(start, goal, nodes, h_func,
             plotter.plot_lists(open_list=open_nodes.get_nodes_list(),
                                closed_list=closed_nodes.get_nodes_list(),
                                start=start, goal=goal, nodes=nodes, a_star_run=True)
-        print(f'\r(a_star) iter: {iteration}, closed: {len(closed_nodes.heap_list)}', end='')
+        # print(f'\r(a_star) iter: {iteration}, closed: {len(closed_nodes.heap_list)}', end='')
 
     path = None
     if node_current.xy_name == goal.xy_name:

@@ -162,6 +162,7 @@ def run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, *
     step_counter = 0
     soc_counter = 0
     succeeded = True
+    plot_per = kwargs['plot_per']
 
     obs = env.reset()
     # create agents
@@ -175,18 +176,19 @@ def run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, *
         actions = get_actions(agents, obs)
         obs, reward, terminated, info = env.step(actions)
         # env.render()
-        print(f'[A* Policy] step: {i}')
+        print(f'\r[A* Policy] step: {i}', end='')
         if plotter:
-            plotter.render(info={
-                'i_step': i,
-                'obs': obs,
-                'num_agents': num_agents
-            })
+            if i % plot_per == 0:
+                plotter.render(info={
+                    'i_step': i,
+                    'obs': obs,
+                    'num_agents': num_agents
+                })
         if all(terminated):
             break
         else:
             soc_counter += sum(terminated)
-        if i >= max_episode_steps:
+        if step_counter >= max_episode_steps-1:
             succeeded = False
 
     # env.save_animation("render.svg")
