@@ -144,11 +144,17 @@ def main():
     obs_radius = 3
 
     algs_to_test_dict = {
-        'PO-SDS': (run_po_sds, {
+        'PO-SDS (agents)': (run_po_sds, {
             'small_iters': 3,
             'color': 'tab:orange',
+            'po_field': False,
         }),
-        'ASP': (run_a_star_policy, {
+        # 'PO-SDS (agents and map)': (run_po_sds, {
+        #     'small_iters': 3,
+        #     'color': 'tab:orange',
+        #     'po_field': True,
+        # }),
+        'A*-Policy': (run_a_star_policy, {
             'color': 'tab:purple',
         })
     }
@@ -164,10 +170,10 @@ def main():
     # runs_per_n_agents = 50
     # runs_per_n_agents = 25
     # runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
-    # runs_per_n_agents = 10
+    runs_per_n_agents = 10
     # runs_per_n_agents = 5
     # runs_per_n_agents = 1
-    runs_per_n_agents = 3
+    # runs_per_n_agents = 3
 
     random_seed = True
     # random_seed = False

@@ -26,7 +26,7 @@ class Plotter:
                 # plot_mst_field(self.ax['A'], info)
                 plot_field(self.ax['A'], info)
                 plot_nei_agents(self.ax['B'], info)
-                # plot_example(self.ax['C'], info)
+                plot_b_nodes(self.ax['C'], info)
 
                 plt.pause(0.001)
                 # plt.show()

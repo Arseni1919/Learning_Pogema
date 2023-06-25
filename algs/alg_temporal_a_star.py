@@ -239,9 +239,8 @@ def get_node(successor_xy_name, node_current, nodes, nodes_dict, open_nodes, clo
              perm_constr_dict, max_final_time, **kwargs):
     new_t = node_current.t + 1
 
-    if 'short_a_star_list' in kwargs and len(kwargs['short_a_star_list']) > 0:
-        if successor_xy_name not in kwargs['short_a_star_list']:
-            return None, ''
+    if successor_xy_name not in nodes_dict:
+        return None, ''
 
     if v_constr_dict:
         if new_t in v_constr_dict[successor_xy_name]:
@@ -317,11 +316,6 @@ def a_star(start, goal, nodes, h_func,
                     # otherwise break
                     break
             else:
-                break
-        if 'df_dict' in kwargs:
-            future_constr = check_future_constr(node_current, v_constr_dict, e_constr_dict, perm_constr_dict, kwargs['df_dict'], start)
-            if future_constr:
-                goal = node_current
                 break
         for successor_xy_name in node_current.neighbours:
             node_successor, node_successor_status = get_node(

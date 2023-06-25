@@ -86,6 +86,7 @@ def plot_field(ax, info):
     ax.cla()
     obs_agents = info.obs
     num_agents = info.num_agents
+    # agents = info.agents
 
     # plot field
     obs_agent = obs_agents[0]
@@ -125,5 +126,21 @@ def plot_nei_agents(ax, info):
     ax.imshow(other_agents, cmap='Blues')
 
     ax.set_title(f'agents')
+
+
+def plot_b_nodes(ax, info):
+    ax.cla()
+    size = 30 + 10
+    field = np.zeros((size, size))
+    agents = info.agents
+    curr_agent = agents[4]
+    for node in curr_agent.b_nodes:
+        field[node.x, node.y] = 1
+    field[curr_agent.b_start.x, curr_agent.b_start.y] = -1
+    field[curr_agent.b_goal.x, curr_agent.b_goal.y] = 2
+    field = np.rot90(field)
+    ax.imshow(field, cmap='Blues')
+
+    ax.set_title(f'b_nodes')
 
 
