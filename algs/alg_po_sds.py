@@ -309,17 +309,38 @@ def set_all_agents_their_nei(agents):
         # print(f'{curr_agent.name} nei: {[nei.name for nei in curr_agent.nei_list]}')
 
 
-def get_actions(agents, obs, small_iters, h_func):
+def cut_the_paths(agents):
+    for agent in agents:
+        if len(agent.path) > 0:
+            curr_pos = agent.path[0]
+            agent.path = agent.path[1:]
+            if (curr_pos.x, curr_pos.y) != agent.global_xy:
+                raise RuntimeError('wrong location')
+
+
+def get_next_sds_actions(agents, obs):
+    update_all_agents_their_obs(agents, obs)
+    # decide on the next action
+    actions = []
+    for agent in agents:
+        actions.append(agent.get_next_action())
+    cut_the_paths(agents)
+    return actions
+
+
+def get_actions(agents, obs, small_iters, h_func, to_print=False):
     # update obs
     update_all_agents_their_obs(agents, obs)
     # reset neighbours
     reset_agents(agents)
     set_all_agents_their_nei(agents)
+    final_i_iter = 0
 
     # calc initial path
     for agent in agents:
         agent.plan(h_func)
     for i_iter in range(small_iters):
+        final_i_iter = i_iter
         # exchange paths with neighbors
         for agent in agents:
             agent.send_path_to_nei(i_iter)
@@ -332,13 +353,14 @@ def get_actions(agents, obs, small_iters, h_func):
         if all(no_collision_list):
             break
 
+    if to_print:
+        print(f'\n[get_actions]: Finished calc. paths with {final_i_iter} iterations.')
+
     # decide on the next action
     actions = []
     for agent in agents:
         actions.append(agent.get_next_action())
         # actions.append(0)
-    # not_arrived_agents = [agent for agent in agents if not agent.arrived]
-    # print(not_arrived_agents)
     return actions
 
 
@@ -400,13 +422,73 @@ def run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, *args, *
     return stat_info
 
 
+def run_full_sds(env, num_agents, max_episode_steps, obs_radius, plotter, *args, **kwargs):
+    step_counter = 0
+    soc_counter = 0
+    succeeded = True
+
+    obs = env.reset()
+    small_iters = 100
+    plot_per = kwargs['plot_per']
+
+    # prebuild map
+    img_np = obs[0]['global_obstacles']
+    img_np = 1 - img_np
+    map_dim = img_np.shape
+    size = map_dim[0]
+    nodes, nodes_dict = build_graph_nodes(img_np=img_np, show_map=False)
+
+    # create agents
+    agents = []
+    for i in range(num_agents):
+        agent = PoSdsAgent(num=i, obs_radius=size*2, small_iters=small_iters,
+                           global_nodes=nodes, global_nodes_dict=nodes_dict)
+        agents.append(agent)
+    update_all_agents_their_obs(agents, obs)
+
+    # heuristic
+    node_goals = [nodes_dict[f'{agent.global_xy[0]}_{agent.global_xy[1]}'] for agent in agents]
+    h_dict = build_heuristic_for_multiple_targets(node_goals, nodes, map_dim)
+    h_func = h_func_creator(h_dict)
+
+    # get_actions(agents, obs, small_iters, h_func, to_print=True)
+    # while True:
+    for i in range(max_episode_steps):
+        step_counter += 1
+        # actions = get_next_sds_actions(agents, obs)
+        actions = get_actions(agents, obs, small_iters, h_func, to_print=True)
+        obs, reward, terminated, info = env.step(actions)
+        # env.render()
+        print(f'\r[FO-SDS] step: {i}', end='')
+        if plotter:
+            if i % plot_per == 0:
+                plotter.render(info={
+                    'i_step': i,
+                    'obs': obs,
+                    'num_agents': num_agents,
+                    'agents': agents,
+                })
+        if all(terminated):
+            break
+        else:
+            soc_counter += sum(terminated)
+        if step_counter >= max_episode_steps - 1:
+            succeeded = False
+
+    # env.save_animation("render.svg")
+    # env.save_animation("render_agent_0.svg", AnimationConfig(egocentric_idx=0))
+
+    stat_info = {'steps': step_counter, 'soc': soc_counter, 'succeeded': succeeded}
+    return stat_info
+
+
 def main():
-    num_agents = 5
+    num_agents = 40
     max_episode_steps = 1000
     small_iters = 3
     obs_radius = 3
-    seed = 59
-    # seed = random.randint(0, 100)
+    # seed = 4
+    seed = random.randint(0, 100)
     print(f'[SEED]: {seed}')
     po_field = True
     # po_field = False
@@ -429,8 +511,9 @@ def main():
 
     plotter = Plotter()
 
-    run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, small_iters=small_iters, po_field=po_field,
-               plot_per=1)
+    # run_po_sds(env, num_agents, max_episode_steps, obs_radius, plotter, small_iters=small_iters, po_field=po_field,
+    #            plot_per=1)
+    run_full_sds(env, num_agents, max_episode_steps, obs_radius, plotter, plot_per=1)
 
 
 if __name__ == '__main__':

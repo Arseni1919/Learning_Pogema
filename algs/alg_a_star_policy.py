@@ -182,7 +182,8 @@ def run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, *
                 plotter.render(info={
                     'i_step': i,
                     'obs': obs,
-                    'num_agents': num_agents
+                    'num_agents': num_agents,
+                    # 'agents': agents,
                 })
         if all(terminated):
             break
@@ -198,11 +199,12 @@ def run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, *
 
 
 def main():
-    num_agents = 20
+    num_agents = 40
     max_episode_steps = 1000
     obs_radius = 3
-    seed = 10
+    seed = 4
     # seed = random.randint(0, 100)
+    plot_per = 1
 
     # Define random configuration
     grid_config = GridConfig(
@@ -222,7 +224,7 @@ def main():
 
     plotter = Plotter()
 
-    run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter)
+    run_a_star_policy(env, num_agents, max_episode_steps, obs_radius, plotter, plot_per=plot_per)
 
 
 if __name__ == '__main__':

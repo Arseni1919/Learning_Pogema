@@ -6,7 +6,7 @@ from plot_functions.plot_objects import Plotter
 from pogema import pogema_v0, Hard8x8, GridConfig
 from pogema.animation import AnimationMonitor, AnimationConfig
 
-from algs.alg_po_sds import run_po_sds
+from algs.alg_po_sds import run_po_sds, run_full_sds
 from algs.alg_a_star_policy import run_a_star_policy
 
 
@@ -144,10 +144,13 @@ def main():
     obs_radius = 3
 
     algs_to_test_dict = {
-        'PO-SDS (agents)': (run_po_sds, {
+        'PO-SDS': (run_po_sds, {
             'small_iters': 3,
             'color': 'tab:orange',
             'po_field': False,
+        }),
+        'FO-SDS': (run_full_sds, {
+            'color': 'tab:blue',
         }),
         # 'PO-SDS (agents and map)': (run_po_sds, {
         #     'small_iters': 3,
@@ -163,14 +166,14 @@ def main():
     # n_agents_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     # n_agents_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
     # n_agents_list = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    # n_agents_list = [5, 10, 15, 20, 25, 30, 35, 40]
-    n_agents_list = [10, 20, 30, 40]
-    # n_agents_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]  # !!!!!!!!!!!!!!!!!
+    n_agents_list = [5, 10, 15, 20, 25, 30, 35, 40]  # !!!!!!!!!!!!!!!!!
+    # n_agents_list = [10, 20, 30, 40]
+    # n_agents_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     # runs_per_n_agents = 50
     # runs_per_n_agents = 25
-    # runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
-    runs_per_n_agents = 10
+    runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
+    # runs_per_n_agents = 10
     # runs_per_n_agents = 5
     # runs_per_n_agents = 1
     # runs_per_n_agents = 3
