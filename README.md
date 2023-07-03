@@ -3,13 +3,47 @@
 
 ## Quick Start
 
-Just install from PyPI:
+What to import/install:
 
-```
-pip install pogema
+```python
+import matplotlib.pyplot as plt
+import matplotlib
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+import numpy as np
+import random
+import math
+import copy
+from collections import OrderedDict
+from scipy.spatial.distance import cdist
+import abc
+import os
+import re
+
+import itertools
+from itertools import combinations, permutations
+from collections import defaultdict, Counter
+from pprint import pprint
+from datetime import datetime
+import time
+import json
+
+import cProfile
+import pstats
+
+from pogema import pogema_v0, Hard8x8, GridConfig
+from pogema.animation import AnimationMonitor, AnimationConfig
+from IPython.display import SVG, display
 ```
 
-Run example: 
+You can run the algorithms separately within files of `algs` folder.
+
+The big experiments are executed though `[scale_test_algs.py](scale_test_algs.py)` file.
+
+## POGEMA
+
+Run example of POGEMA: 
 
 ```python
 import numpy as np

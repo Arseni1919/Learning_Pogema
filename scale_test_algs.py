@@ -171,8 +171,8 @@ def main():
     # n_agents_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     # runs_per_n_agents = 50
-    # runs_per_n_agents = 25
-    runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
+    runs_per_n_agents = 40
+    # runs_per_n_agents = 20  # !!!!!!!!!!!!!!!!!
     # runs_per_n_agents = 10
     # runs_per_n_agents = 5
     # runs_per_n_agents = 1
