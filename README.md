@@ -41,7 +41,7 @@ Create `logs_for_graphs` and `stats` folders inside the project (in order to be 
 
 You can run the algorithms separately within files of `algs` folder.
 
-The big experiments are executed though `[scale_test_algs.py](scale_test_algs.py)` file.
+The big experiments are executed though [scale_test_algs.py](scale_test_algs.py) file.
 
 ## POGEMA
 
