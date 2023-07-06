@@ -37,6 +37,8 @@ from pogema.animation import AnimationMonitor, AnimationConfig
 from IPython.display import SVG, display
 ```
 
+Create `logs_for_graphs` and `stats` folders inside the project (in order to be able to save results).
+
 You can run the algorithms separately within files of `algs` folder.
 
 The big experiments are executed though `[scale_test_algs.py](scale_test_algs.py)` file.
