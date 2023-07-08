@@ -1,7 +1,7 @@
 # Learning  [Pogema](https://github.com/AIRI-Institute/pogema)
 
 
-## Quick Start
+## Quick Start - Install and Run Algorithms (For The Lecturer)
 
 What to import/install:
 

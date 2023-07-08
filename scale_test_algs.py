@@ -145,7 +145,7 @@ def main():
 
     algs_to_test_dict = {
         'PO-SDS': (run_po_sds, {
-            'small_iters': 3,
+            'small_iters': 20,
             'color': 'tab:orange',
             'po_field': False,
         }),
@@ -184,8 +184,8 @@ def main():
     seeds = list(range(10000))
     random.shuffle(seeds)
 
-    # time_per_alg_limit = 50
-    time_per_alg_limit = 500
+    time_per_alg_limit = 50
+    # time_per_alg_limit = 500
 
     plotter = Plotter(for_big_experiments=True)
     plot_per = 20
